@@ -1,0 +1,13 @@
+package-as: ForeverThreat
+
+enable-toc-creation: false
+
+# Files to exclude from the final release zip archive
+ignore:
+  - ".github"
+  - ".pkgmeta"
+  - ".luacheckrc"
+  - "test_harness.lua"
+  - "*.svg"
+  - "*.png"
+  - "*.jpg"
