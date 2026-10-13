@@ -1,0 +1,8 @@
+## Interface: 16001
+## Title: ForeverThreat
+## Notes: Lightweight combat threat meter for WoW Forever.
+## Author: Foxfair
+## SavedVariables: ForeverThreatDB
+## Version: 1.2.0
+
+Core.lua
