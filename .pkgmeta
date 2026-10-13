@@ -11,3 +11,4 @@ ignore:
   - "*.svg"
   - "*.png"
   - "*.jpg"
+  - "LICENSE"
