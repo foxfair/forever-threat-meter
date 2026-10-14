@@ -18,6 +18,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Run Luacheck Linting
+        uses: nebularg/actions-luacheck@v1
+        with:
+          args: Core.lua --no-color
+        continue-on-error: false
+
       - name: Package and Publish to CurseForge & GitHub
         uses: BigWigsMods/packager@v2
         with:
