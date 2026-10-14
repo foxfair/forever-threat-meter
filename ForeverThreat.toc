@@ -3,6 +3,7 @@
 ## Notes: Lightweight combat threat meter for WoW Forever.
 ## Author: Foxfair
 ## SavedVariables: ForeverThreatDB
-## Version: 1.2.4
+## Version: 1.2.5
+## X-Curse-Project-ID: 1742475
 
 Core.lua
