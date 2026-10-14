@@ -1,0 +1,29 @@
+name: Package and Release Addon
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Luacheck Linting
+        uses: nebularg/actions-luacheck@v1
+        with:
+          args: Core.lua --no-color
+        continue-on-error: true
+
+      - name: Package and Publish to CurseForge & GitHub
+        uses: BigWigsMods/packager@v2
+        env:
+          CF_API_KEY: ${{ secrets.CF_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
