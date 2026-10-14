@@ -5,10 +5,10 @@ local PLAYER_BAR_HEIGHT = 18
 local PET_BAR_HEIGHT = 14
 local BAR_WIDTH = 190
 local PET_BAR_WIDTH = 176
-local ABSOLUTE_MAX_ROWS = 10 -- Capped at 10 for the focused 3-way layout
+local ABSOLUTE_MAX_ROWS = 10
 
 local bars = {}
-local isUnlocked = fals
+local isUnlocked = false
 local timeSinceLast = 0
 local UPDATE_INTERVAL = 0.15
 local settingsCategory = nil
@@ -97,15 +97,15 @@ if ForeverThreatDB and ForeverThreatDB.maxRows then
         local maxDisplay = GetMaxRows()
         local testSamples = {
             { name = "MainTank (Warrior)", isPet = false, pct = 100, r = 0.78, g = 0.61, b = 0.43 },
-            { name = "Pet: Wolf",          isPet = true,  pct = 82,  r = 0.75, g = 0.55, b = 0.25 },
-            { name = "MageDPS",            isPet = false, pct = 74,  r = 0.41, g = 0.80, b = 0.94 },
-            { name = "OffTank (Paladin)",  isPet = false, pct = 68,  r = 0.96, g = 0.55, b = 0.73 },
-            { name = "RogueDPS",           isPet = false, pct = 62,  r = 1.00, g = 0.96, b = 0.41 },
-            { name = "HunterDPS",          isPet = false, pct = 58,  r = 0.67, g = 0.83, b = 0.45 },
-            { name = "ShadowPriest",       isPet = false, pct = 52,  r = 1.00, g = 1.00, b = 1.00 },
-            { name = "Pet: Imp",           isPet = true,  pct = 48,  r = 0.75, g = 0.55, b = 0.25 },
-            { name = "WarlockDPS",         isPet = false, pct = 45,  r = 0.53, g = 0.53, b = 0.93 },
-            { name = "[You] Player",       isPet = false, pct = 39,  r = 0.20, g = 0.90, b = 0.40 },
+            { name = "Pet: Wolf",          isPet = true,  pct = 82,  r = 0.75, g = 0.55, b = 0.25 },
+            { name = "MageDPS",            isPet = false, pct = 74,  r = 0.41, g = 0.80, b = 0.94 },
+            { name = "OffTank (Paladin)",  isPet = false, pct = 68,  r = 0.96, g = 0.55, b = 0.73 },
+            { name = "RogueDPS",           isPet = false, pct = 62,  r = 1.00, g = 0.96, b = 0.41 },
+            { name = "HunterDPS",          isPet = false, pct = 58,  r = 0.67, g = 0.83, b = 0.45 },
+            { name = "ShadowPriest",       isPet = false, pct = 52,  r = 1.00, g = 1.00, b = 1.00 },
+            { name = "Pet: Imp",           isPet = true,  pct = 48,  r = 0.75, g = 0.55, b = 0.25 },
+            { name = "WarlockDPS",         isPet = false, pct = 45,  r = 0.53, g = 0.53, b = 0.93 },
+            { name = "[You] Player",       isPet = false, pct = 39,  r = 0.20, g = 0.90, b = 0.40 },
         }
 
         local yOfs = 0
@@ -624,10 +624,10 @@ if ForeverThreatDB and ForeverThreatDB.maxRows then
                                                                                                                                                                                                                                                                 end
                                                                                                                                                                                                                                                                 else
                                                                                                                                                                                                                                                                 print("|cff00ccffForeverThreat Commands:|r")
-                                                                                                                                                                                                                                                                print("  |cff00ff00/ftm unlock|r      - Toggle frame unlock to reposition")
-                                                                                                                                                                                                                                                                print("  |cff00ff00/ftm lock|r        - Lock frame in place")
-                                                                                                                                                                                                                                                                print("  |cff00ff00/ftm rows [5|8|10]|r - Set maximum visible row count")
-                                                                                                                                                                                                                                                                print("  |cff00ff00/ftm test|r        - Show sample preview bars for 5s")
-                                                                                                                                                                                                                                                                print("  |cff00ff00/ftm opt|r         - Open the options settings panel")
+                                                                                                                                                                                                                                                                print("  |cff00ff00/ftm unlock|r      - Toggle frame unlock to reposition")
+                                                                                                                                                                                                                                                                print("  |cff00ff00/ftm lock|r        - Lock frame in place")
+                                                                                                                                                                                                                                                                print("  |cff00ff00/ftm rows [5|8|10]|r - Set maximum visible row count")
+                                                                                                                                                                                                                                                                print("  |cff00ff00/ftm test|r        - Show sample preview bars for 5s")
+                                                                                                                                                                                                                                                                print("  |cff00ff00/ftm opt|r         - Open the options settings panel")
                                                                                                                                                                                                                                                                 end
                                                                                                                                                                                                                                                                 end
