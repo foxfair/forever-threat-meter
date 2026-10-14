@@ -8,6 +8,4 @@ ignore:
   - ".pkgmeta"
   - ".luacheckrc"
   - "test_harness.lua"
-  - "*.svg"
-  - "*.png"
-  - "*.jpg"
+  - "release.sh"
