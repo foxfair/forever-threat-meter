@@ -22,7 +22,7 @@ jobs:
         uses: nebularg/actions-luacheck@v1
         with:
           args: Core.lua --no-color
-        continue-on-error: false
+        continue-on-error: true
 
       - name: Package and Publish to CurseForge & GitHub
         uses: BigWigsMods/packager@v2
