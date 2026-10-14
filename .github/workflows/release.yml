@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  release:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -24,10 +24,80 @@ jobs:
           args: Core.lua --no-color
         continue-on-error: true
 
-      - name: Package and Publish to CurseForge & GitHub
-        uses: BigWigsMods/packager@v2
+      - name: Build Addon Zip
+        run: |
+          mkdir -p ForeverThreat
+          cp Core.lua ForeverThreat.toc README.md ForeverThreat/
+          zip -r ForeverThreat-${{ github.ref_name }}.zip ForeverThreat/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          args: -g "12.0.1" -p 1742475
+          files: ForeverThreat-${{ github.ref_name }}.zip
+          generate_release_notes: true
+
+      - name: Upload to CurseForge API
         env:
-          CF_API_TOKEN: ${{ secrets.CF_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CF_TOKEN: ${{ secrets.CF_API_KEY }}
+        run: |
+          # 1. Fetch available WoW game versions from CurseForge
+          echo "Fetching valid CurseForge game versions..."
+          VERSIONS_JSON=$(curl -s -H "x-api-token: $CF_TOKEN" https://wow.curseforge.com/api/game/versions)
+          
+          # 2. Extract the first valid WoW game version ID (or fallback)
+          # Uses python (pre-installed on ubuntu runners) to cleanly extract the ID
+          GAME_VERSION_ID=$(python3 -c "
+          import json, sys
+          try:
+              data = json.loads('''$VERSIONS_JSON''')
+              # Find first retail/live version ID
+              for item in data:
+                  if 'name' in item and 'id' in item:
+                      print(item['id'])
+                      sys.exit(0)
+          except Exception:
+              pass
+          print('')
+          ")
+
+          echo "Detected Game Version ID: $GAME_VERSION_ID"
+
+          # 3. Construct Metadata with explicit gameVersions
+          if [ -n "$GAME_VERSION_ID" ]; then
+            METADATA=$(cat <<EOF
+          {
+            "changelog": "Release ${{ github.ref_name }}",
+            "changelogType": "markdown",
+            "displayName": "ForeverThreat ${{ github.ref_name }}",
+            "gameVersions": [$GAME_VERSION_ID],
+            "releaseType": "release"
+          }
+          EOF
+            )
+          else
+            METADATA=$(cat <<EOF
+          {
+            "changelog": "Release ${{ github.ref_name }}",
+            "changelogType": "markdown",
+            "displayName": "ForeverThreat ${{ github.ref_name }}",
+            "releaseType": "release"
+          }
+          EOF
+            )
+          fi
+
+          echo "Uploading payload to CurseForge..."
+          RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
+            -H "x-api-token: $CF_TOKEN" \
+            -F "metadata=$METADATA" \
+            -F "file=@ForeverThreat-${{ github.ref_name }}.zip" \
+            https://wow.curseforge.com/api/projects/1742475/upload-file)
+
+          echo "CurseForge Response:"
+          echo "$RESPONSE"
+
+          STATUS=$(echo "$RESPONSE" | grep "HTTP_STATUS" | cut -d':' -f2)
+          if [ "$STATUS" -ne 200 ]; then
+            echo "CurseForge upload failed with HTTP status $STATUS"
+            exit 1
+          fi
