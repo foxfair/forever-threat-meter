@@ -58,13 +58,13 @@ jobs:
               "changelog": os.environ["TAG_NOTES"],
               "changelogType": "markdown",
               "displayName": "ForeverThreat " + os.environ["TAG_NAME"],
-              "gameVersions": [11479],
+              "gameVersionNames": ["1.60.1"],
               "releaseType": "release"
           }
           print(json.dumps(payload))
           ')
 
-          echo "Uploading payload to CurseForge for 1.60.1 (ID 11479)..."
+          echo "Uploading payload to CurseForge for 1.60.1..."
           RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
             -H "x-api-token: $CF_TOKEN" \
             -F "metadata=$METADATA" \
