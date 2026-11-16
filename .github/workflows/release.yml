@@ -27,7 +27,12 @@ jobs:
       - name: Build Addon Zip
         run: |
           mkdir -p ForeverThreat
-          cp Core.lua ForeverThreat.toc README.md ForeverThreat/
+          cp Core.lua README.md ForeverThreat/
+
+          TAG_VER="${{ github.ref_name }}"
+          CLEAN_VER="${TAG_VER#v}"
+          sed "s/^## Version:.*/## Version: ${CLEAN_VER}/g" ForeverThreat.toc > ForeverThreat/ForeverThreat.toc
+
           zip -r ForeverThreat-${{ github.ref_name }}.zip ForeverThreat/
 
       - name: Create GitHub Release
@@ -39,23 +44,32 @@ jobs:
       - name: Upload to CurseForge API
         env:
           CF_TOKEN: ${{ secrets.CF_API_KEY }}
+          TAG_NAME: ${{ github.ref_name }}
         run: |
-          METADATA=$(cat <<EOF
-          {
-            "changelog": "Release ${{ github.ref_name }}",
-            "changelogType": "markdown",
-            "displayName": "ForeverThreat ${{ github.ref_name }}",
-            "gameVersionNames": ["1.60.1"],
-            "releaseType": "release"
-          }
-          EOF
-          )
+          # Extract the annotated Git tag message (falls back to commit subject if lightweight tag)
+          TAG_NOTES=$(git tag -l --format='%(contents)' "$TAG_NAME")
+          if [ -z "$TAG_NOTES" ]; then
+            TAG_NOTES="Release $TAG_NAME"
+          fi
 
-          echo "Uploading payload to CurseForge with gameVersionNames: [\"1.60.1\"]..."
+          # Safely serialize JSON metadata so newlines/quotes in commit messages never break curl
+          METADATA=$(python3 -c '
+          import json, os
+          payload = {
+              "changelog": os.environ["TAG_NOTES"],
+              "changelogType": "markdown",
+              "displayName": f"ForeverThreat {os.environ[\"TAG_NAME\"]}",
+              "gameVersionNames": ["1.60.1"],
+              "releaseType": "release"
+          }
+          print(json.dumps(payload))
+          ' TAG_NOTES="$TAG_NOTES")
+
+          echo "Uploading payload to CurseForge for 1.60.1..."
           RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
             -H "x-api-token: $CF_TOKEN" \
             -F "metadata=$METADATA" \
-            -F "file=@ForeverThreat-${{ github.ref_name }}.zip" \
+            -F "file=@ForeverThreat-${TAG_NAME}.zip" \
             https://wow.curseforge.com/api/projects/1742475/upload-file)
 
           echo "CurseForge Response:"

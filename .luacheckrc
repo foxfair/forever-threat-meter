@@ -1,9 +1,7 @@
 std = "lua51"
 
--- Ignore unused arguments and unused loop variables
 unused_args = false
 
--- Add WoW-specific globals so they are not flagged as undefined
 globals = {
     "CreateFrame",
     "UIParent",
@@ -19,6 +17,11 @@ globals = {
     "GetNumGroupMembers",
     "IsInRaid",
     "IsInGroup",
+    "IsInInstance",
+    "GetTime",
+    "date",
+    "wipe",
+    "debugstack",
     "Settings",
     "SettingsPanel",
     "C_Timer",
@@ -34,8 +37,4 @@ globals = {
     "print",
 }
 
--- Ignore warning codes:
--- 211: Unused local variable
--- 212: Unused argument
--- 113: Accessing undefined global (fallback)
 ignore = { "211", "212" }
