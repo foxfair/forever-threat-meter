@@ -46,26 +46,25 @@ jobs:
           CF_TOKEN: ${{ secrets.CF_API_KEY }}
           TAG_NAME: ${{ github.ref_name }}
         run: |
-          # Extract the annotated Git tag message (falls back to commit subject if lightweight tag)
           TAG_NOTES=$(git tag -l --format='%(contents)' "$TAG_NAME")
           if [ -z "$TAG_NOTES" ]; then
             TAG_NOTES="Release $TAG_NAME"
           fi
 
-          # Safely serialize JSON metadata so newlines/quotes in commit messages never break curl
+          export TAG_NOTES
           METADATA=$(python3 -c '
           import json, os
           payload = {
               "changelog": os.environ["TAG_NOTES"],
               "changelogType": "markdown",
-              "displayName": f"ForeverThreat {os.environ[\"TAG_NAME\"]}",
-              "gameVersionNames": ["1.60.1"],
+              "displayName": "ForeverThreat " + os.environ["TAG_NAME"],
+              "gameVersions": [11479],
               "releaseType": "release"
           }
           print(json.dumps(payload))
-          ' TAG_NOTES="$TAG_NOTES")
+          ')
 
-          echo "Uploading payload to CurseForge for 1.60.1..."
+          echo "Uploading payload to CurseForge for 1.60.1 (ID 11479)..."
           RESPONSE=$(curl -s -w "\nHTTP_STATUS:%{http_code}" \
             -H "x-api-token: $CF_TOKEN" \
             -F "metadata=$METADATA" \
