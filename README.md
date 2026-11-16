@@ -1,73 +1,27 @@
 # ForeverThreat
 
-**ForeverThreat** is a lightweight, zero-bloat, taint-safe combat threat meter developed specifically for the **WoW Forever** engine (Interface `16001` / modern 12.x architecture).
+A lightweight, taint-safe combat threat meter built specifically for **World of Warcraft: Forever** (`1.60.1`, Interface `16001`).
 
-Built to operate strictly within modern client security constraints, ForeverThreat provides real-time, high-contrast threat tracking across solo, party, and raid encounters without triggering restricted secret-value Lua errors or combat UI execution taint.
-
----
-
-## Why ForeverThreat? (Pros & Trade-offs)
-
-Most legacy threat meters (such as Omen, ClassicThreatMeter, or older ThreatClassic2 forks) rely on legacy combat log parsing or arithmetic comparisons on threat metrics. On the modern 12.x engine, reading and comparing protected combat values inside execution paths triggers client halts, action button taint, or secret-value Lua crashes. 
-
-ForeverThreat was engineered specifically around these modern engine restrictions.
-
-### Why You Should Use This Addon (Pros)
-* **Zero Combat Execution Taint:** Threat values pass straight from native Blizzard C-APIs into status bar widgets without intermediary arithmetic or secret-value comparisons. Keybinds, mouse look, and action buttons will never break during high-APM encounters.
-* **Smart Companion Subordination:** Hunter pets, Warlock minions, and group guardians display with dedicated visual subordination (dimmed opacity, indented rows, and owner attribution like `[Owner]'s [Pet]`), preventing pet taunts from obscuring player aggro priorities.
-* **Always-Visible Self-Pinning (9 + 1 Layout):** Even when tracking larger groups, your personal threat bar is pinned to the bottom slot if you fall below the top-ranked rows. You will never drop off the meter.
-* **Solo & Guardian Fallback:** Resolves the standard engine bug where group threat calls return `nil` when soloing or when fighting alongside untracked summons (e.g., Shaman Earth Elementals).
-* **15-Second Post-Combat Review:** Avoids the frustration of meters vanishing the millisecond a mob dies. Combat data lingers for 15 seconds after `PLAYER_REGEN_ENABLED` (or until a new pull begins).
-* **Negligible Footprint:** Completely standalone under 500 lines of clean Lua. No Ace3 libraries, LibSharedMedia, or background network communication sync overhead.
-
-### Design Trade-offs (Cons / What It Doesn't Do)
-* **Relative Percentages Only:** Displays scaled threat percentages (`scaledPct`) rather than absolute numbers (e.g., `1.4M raw threat`), adhering to modern engine restrictions against converting secret combat values to plain text.
-* **Target-Centric Only:** Focuses exclusively on your current hostile target (`target`). It does not track multi-target AoE threat across all off-target nameplates simultaneously.
-* **Curated Layout Options:** Offers streamlined 5-, 8-, and 10-row presets to preserve screen real estate rather than expansive, multi-window custom skinning suites.
+ForeverThreat provides clean, low-overhead threat visibility across solo play, 5-player dungeons, and 10-/20-player raids while avoiding combat UI taint by relying exclusively on safe scaled threat percentages (`UnitDetailedThreatSituation` / `UnitThreatSituation`) rather than arithmetic on restricted combat values.
 
 ---
 
-## Features
+## Key Features
 
-- **Secrecy & Taint Compliant:** Pipes native threat values directly to C-side status bar widgets, completely avoiding arithmetic taint and secret-value comparison crashes during combat.
-- **Smart Pet & Companion Handling:** 
-  - Subordinated visual styling for pets (indented, dimmed alpha, distinct typography).
-  - Accurate name resolution (`Pet: [Name]` or `[Owner]'s [Pet]`).
-  - Full support for Hunter pets, Warlock minions, and Shaman elementals.
-- **Always-Visible Self-Pinning:** If you drop below the top-ranked cutoff, your own bar automatically pins to the bottom slot so your personal threat margin remains visible.
-- **Dynamic 3-Way Row Selection:** Switch seamlessly between 5 Rows (Minimal), 8 Rows (Standard), and 10 Rows (Raid Focus).
-- **15-Second Post-Combat Linger:** Keeps the final fight threat numbers visible on screen for 15 seconds after dropping combat before auto-hiding.
-- **Solo Play Fallback:** Resolves the standard Blizzard API limitation where group threat queries return `nil` when soloing in the open world.
-- **Native Blizzard Settings Integration:** Configurable directly via the in-game interface menu (`Game Menu > Options > AddOns > ForeverThreat`).
-- **Drag & Repositioning:** Built-in lock toggle and visible movement overlay with automatic coordinate persistence (`ForeverThreatDB`).
-- **Interactive 5-Second Test Preview:** Test frame positioning, fonts, and bar appearance at any time out of combat.
-
----
-
-## Slash Commands
-
-You can control ForeverThreat using `/ftm`, `/fthreat`, or `/foreverthreat`:
-
-| Command | Description |
-| :--- | :--- |
-| `/ftm` | Display command help in chat |
-| `/ftm unlock` | Unlock the frame to drag and reposition |
-| `/ftm lock` | Lock the frame in its current position |
-| `/ftm rows [5\|8\|10]` | Set the maximum visible row count |
-| `/ftm test` | Trigger a 5-second sample preview (Tanks, DPS, Pets, Self) |
-| `/ftm opt` | Open the Blizzard Settings options panel |
-
-*(Note: `/ft` was released to prevent keybind/alias collisions with FlightTimer).*
+* **Taint-Safe Threat Engine:** Evaluates threat using safe scaled percentages with protected `pcall` / `xpcall` execution to prevent combat taint and Lua error loops.
+* **9+1 Self-Pinning Row Layout:** Displays top threat holders in descending order while always pinning your own character to the bottom slot if you fall outside the top visible rows.
+* **Pet Subordination:** Automatically indents and styles player and party/raid pets (`Pet: <Name>` / `<Owner>'s <Pet>`) beneath standard player bars.
+* **Dual Display Modes:**
+  * **Solo / Small Group Mode:** Shows real-time target threat during combat, holds the display for 12 seconds after leaving combat, and smoothly fades out over 3 seconds (15 seconds total linger).
+  * **Dungeon & 5+ Player Cumulative Mode:** Automatically activates inside party/raid instances or groups of 5+ players. Accumulates every player's threat contribution across consecutive chain pulls without wiping when targets die, resetting automatically only after an extended out-of-combat break (default **90 seconds**) or via `/ftm reset`.
+* **Native Blizzard Settings Integration:** Configure frame lock state, visible row presets (`5`, `8`, or `10`), dungeon idle reset timeout (`60s`, `90s`, `120s`, or `Never`), and a 5-second test preview directly from **Options > AddOns > ForeverThreat**.
+* **Built-In Diagnostic & Error Dump Window:** Captures runtime stack traces and timestamped debug events in `SavedVariables` with a circuit-breaker throttle and a scrollable copy-paste window (`/ftm errors`).
 
 ---
 
 ## Installation
 
-### Via CurseForge App
-Search for **ForeverThreat** in the CurseForge app and click **Install**.
-
-### Manual Installation
-1. Download the latest release (`ForeverThreat-vX.X.X.zip`).
-2. Extract the archive into your World of Warcraft directory:
+1. Download the latest `ForeverThreat-vX.X.X.zip` release from [CurseForge](https://www.curseforge.com/wow/addons/forever-threat-meter) or [GitHub Releases](https://github.com/foxfair/forever-threat-meter/releases).
+2. Extract the `ForeverThreat` folder into your WoW Forever AddOns directory:
    ```text
-   World of Warcraft/_retail_/Interface/AddOns/
+   <WoW_Forever_Directory>/_classic_/Interface/AddOns/ForeverThreat
